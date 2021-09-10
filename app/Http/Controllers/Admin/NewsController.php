@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 
 class NewsController extends Controller
 {
-    //
+    // git test
     public function add()
     {
         return view('admin.news.create');
