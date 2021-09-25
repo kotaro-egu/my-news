@@ -28,3 +28,12 @@ Route::group(['prefix' => 'admin','middleware' => 'auth'], function() {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::group(['prefix' => 'admin'], function() {
+    Route::get('news/create', 'Admin\NewsController@add')->middleware('auth');
+    Route::post('news/create', 'Admin\NewsController@create')->middleware('auth');
+    Route::get('news', 'Admin\NewsController@index')->middleware('auth'); 
+    Route::get('news/edit', 'Admin\NewsController@edit')->middleware('auth'); 
+    Route::post('news/edit', 'Admin\NewsController@update')->middleware('auth');
+    Route::get('news/delete', 'Admin\NewsController@delete')->middleware('auth');
+});
