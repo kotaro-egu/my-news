@@ -4,101 +4,101 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\News;
+use App\Posts;
 use App\History;
 use Carbon\Carbon;
 use Storage;
 
-class NewsController extends Controller
+class PostingController extends Controller
 {
   public function add()
   {
-      return view('admin.news.create');
+      return view('admin.posts.create');
   }
 
   public function create(Request $request)
   {
       // このファンクションを実行することによってデータベースのnewsテーブルにデータが追加される
-      $this->validate($request, News::$rules);
-      $news = new News;
+      $this->validate($request, Posts::$rules);
+      $posts = new Posts;
       $form = $request->all();
       if (isset($form['image'])) {
           $path = Storage::disk('s3')->putFile('/',$form['image'],'public');
-          $news->image_path = Storage::disk('s3')->url($path);
+          $posts->image_path = Storage::disk('s3')->url($path);
       } else {
-          $news->image_path = null;
+          $posts->image_path = null;
       }
 
       unset($form['_token']);
 
       unset($form['image']);
 
-      $news->fill($form);
-      $news->save();
+      $posts->fill($form);
+      $posts->save();
 
-      return redirect('admin/news/create');
+      return redirect('admin/post/create');
   }
 
- public function index(Request $request)
+  public function index(Request $request)
   {
       $cond_title = $request->cond_title;
       if ($cond_title != '') {
           // 検索されたら検索結果を取得する
-          $posts = News::where('title', $cond_title)->get();
+          $posts = Posts::where('title', $cond_title)->get();
       } else {
           // それ以外はすべてのニュースを取得する
-          $posts = News::all();
+          $posts = Posts::all();
       }
-      return view('admin.news.index', ['posts' => $posts, 'cond_title' => $cond_title]);
+      return view('admin.post.index', ['posts' => $posts, 'cond_title' => $cond_title]);
   }
 
-public function edit(Request $request)
+  public function edit(Request $request)
   {
       // News Modelからデータを取得する
-      $news = News::find($request->id);
-      if (empty($news)) {
+      $posts = Posts::find($request->id);
+      if (empty($post)) {
         abort(404);    
       }
-      return view('admin.news.edit', ['news_form' => $news]);
+      return view('admin.post.edit', ['post_form' => $posts]);
   }
 
 
   public function update(Request $request)
   {
       // Validationをかける
-      $this->validate($request, News::$rules);
+      $this->validate($request, Posts::$rules);
       // News Modelからデータを取得する
-      $news = News::find($request->id);
+      $posts = Posts::find($request->id);
       // 送信されてきたフォームデータを格納する
-      $news_form = $request->all();
-      unset($news_form['_token']);
-      unset($news_form['image']);
-      unset($news_form['remove']);
-      $news->fill($news_form)->save();
+      $post_form = $request->all();
+      unset($post_form['_token']);
+      unset($post_form['image']);
+      unset($post_form['remove']);
+      $posts->fill($post_form)->save();
 
       $history = new History();
-      $history->news_id = $news->id;
+      $history->news_id = $posts->id;
       $history->edited_at = Carbon::now();
       $history->save();
 
-        return redirect('admin/news/');
+      return redirect('admin/post/');
 
       // 該当するデータを上書きして保存する
-      $news->fill($news_form)->save();
+      $posts->fill($posts_form)->save();
 
-      return redirect('admin/news');
+      return redirect('admin/posts');
   }
 
-public function delete(Request $request)
+  public function delete(Request $request)
   {
       // 該当するNews Modelを取得
-      $news = News::find($request->id);
+      $posts = Posts::find($request->id);
       // 削除する
-      $news->delete();
-      return redirect('admin/news/');
+      $posts->delete();
+      return redirect('admin/post/');
   }  
 
-}
+  }
 
 
    
